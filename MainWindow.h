@@ -6,7 +6,6 @@
 
 #include "GeoWidget.h"
 
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -15,8 +14,7 @@ public:
     ~MainWindow();
 
 protected:
-    virtual void timerEvent(QTimerEvent* event);
-
+    void timerEvent(QTimerEvent* event) override;
 private:
     enum State
     {
@@ -39,8 +37,6 @@ private slots:
     void geoError(QGeoPositionInfoSource::Error positioningError);
     void geoPositionUpdated(const QGeoPositionInfo& geoPositionInfo);
     void geoUpdateTimeout();
-
-
 private:
     void startLocation();
     void geoRequestUpdate();
