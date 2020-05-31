@@ -26,4 +26,5 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += mobility
 MOBILITY = 
 
-include(GpsRemPos.pri)
+HEADERS += $$files(*.h, true)
+SOURCES += $$files(*.cpp, true)

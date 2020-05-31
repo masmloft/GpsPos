@@ -1,38 +1,23 @@
-#include "MainWindow.h"
+#include "GpsSource.h"
 
-#include "MapWidget/GoogleTileManager.h"
-
-
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent)
-    , _geoPositionInfoSource(NULL)
-    , _geoReqCount(0)
-  , _geoPassCount(0)
-  , _isReq(false)
-  , _reqTimeout(true)
+GpsSource::GpsSource(QObject* parent)
+    : QObject(parent)
 {
-    this->setObjectName("MainWindow");
-
-    {
-        _geoWidget = new GeoWidget(this);
-        setCentralWidget(_geoWidget);
-        _geoWidget->setTileManager(new GoogleTileManager(this));
-    }
-
     startLocation();
 }
 
-MainWindow::~MainWindow()
+GpsSource::~GpsSource()
 {
 }
 
-void MainWindow::timerEvent(QTimerEvent* event)
+void GpsSource::timerEvent(QTimerEvent* event)
 {
+    Q_UNUSED(event);
     _reqTimeout = true;
-    geoRequestUpdate();
+    updateData();
 }
 
-void MainWindow::startLocation()
+void GpsSource::startLocation()
 {
     if (_geoPositionInfoSource == NULL)
     {
@@ -52,7 +37,7 @@ void MainWindow::startLocation()
     }
 }
 
-void MainWindow::geoRequestUpdate()
+void GpsSource::updateData()
 {
     if(_reqTimeout == false)
     {
@@ -77,45 +62,29 @@ void MainWindow::geoRequestUpdate()
 //    ui->geoStatusWidget->setText(tr("Req"));
 }
 
-void MainWindow::geoError(QGeoPositionInfoSource::Error positioningError)
+void GpsSource::geoError(QGeoPositionInfoSource::Error positioningError)
 {
+    Q_UNUSED(positioningError);
 //    ui->geoErrorWidget->setText(tr("Err: %1").arg(positioningError));
 
     _isReq = false;
-    geoRequestUpdate();
+    updateData();
 }
 
-void MainWindow::geoPositionUpdated(const QGeoPositionInfo& geoPositionInfo)
+void GpsSource::geoPositionUpdated(const QGeoPositionInfo& geoPositionInfo)
 {
     _currentGeoPositionInfo = geoPositionInfo;
-    _geoWidget->setLatLonDeg(_currentGeoPositionInfo.coordinate().latitude(), _currentGeoPositionInfo.coordinate().longitude());
-    updateLatLonWidget();
+    //_geoWidget->setLatLonDeg(_currentGeoPositionInfo.coordinate().latitude(), _currentGeoPositionInfo.coordinate().longitude());
 
     _isReq = false;
-    geoRequestUpdate();
+    updateData();
 }
 
-void MainWindow::geoUpdateTimeout()
+void GpsSource::geoUpdateTimeout()
 {
     _geoPassCount++;
 //    ui->geoStatusWidget->setText(tr("Timeout"));
 
     _isReq = false;
-    geoRequestUpdate();
+    updateData();
 }
-
-void MainWindow::updateLatLonWidget()
-{
-    if(_currentGeoPositionInfo.isValid() == false)
-    {
-//        ui->geoStatusWidget->setText(tr("Not Valid"));
-//        ui->latWidget->setText(tr("%1").arg(tr("Not Valid")));
-//        ui->lonWidget->setText(tr("%1").arg(tr("Not Valid")));
-        return;
-    }
-
-//    ui->geoStatusWidget->setText(tr("OK"));
-//    ui->latWidget->setText(tr("%1").arg(_currentGeoPositionInfo.coordinate().latitude(), 0, 'f'));
-//    ui->lonWidget->setText(tr("%1").arg(_currentGeoPositionInfo.coordinate().longitude(), 0, 'f'));
-}
-
