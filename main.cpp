@@ -1,12 +1,8 @@
 #include <QApplication>
 #include <QTextCodec>
 
-#ifdef _DEBUG
-//#include "../vld/include/vld.h"
-#endif
-
 #include "MainWindow.h"
-
+#include "GpsSource/GpsSource.h"
 
 int main(int argc, char *argv[])
 {
@@ -25,7 +21,16 @@ int main(int argc, char *argv[])
 	}
 
 	QApplication a(argc, argv);
+
+    GpsSource gpsSource(nullptr);
+
 	MainWindow w(NULL);
+
+    QObject::connect(&gpsSource, &GpsSource::changed, &w, &MainWindow::gpsChanged);
+
     w.showMaximized();
+
+    gpsSource.startLocation();
+
 	return a.exec();
 }

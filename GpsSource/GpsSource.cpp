@@ -1,9 +1,11 @@
 #include "GpsSource.h"
 
+#include <QTimerEvent>
+#include <QDebug>
+
 GpsSource::GpsSource(QObject* parent)
     : QObject(parent)
 {
-    startLocation();
 }
 
 GpsSource::~GpsSource()
@@ -13,80 +15,93 @@ GpsSource::~GpsSource()
 void GpsSource::timerEvent(QTimerEvent* event)
 {
     Q_UNUSED(event);
-    _reqTimeout = true;
-    updateData();
+
+    if(event->timerId() == _reqTimerId)
+    {
+        killTimer(_reqTimerId);
+        _reqTimerId = 0;
+        requestUpdate();
+        updateData();
+    }
 }
 
 void GpsSource::startLocation()
 {
-    if (_geoPositionInfoSource == NULL)
+    if (_geoPositionInfoSource == nullptr)
     {
         _geoPositionInfoSource = QGeoPositionInfoSource::createDefaultSource(this);
-        if(_geoPositionInfoSource == NULL)
-            return;
 
-        _geoPositionInfoSource->setPreferredPositioningMethods(QGeoPositionInfoSource::SatellitePositioningMethods);
+        if(_geoPositionInfoSource != nullptr)
+        {
+            _geoPositionInfoSource->setPreferredPositioningMethods(QGeoPositionInfoSource::SatellitePositioningMethods);
 
-        connect(_geoPositionInfoSource, SIGNAL(error(QGeoPositionInfoSource::Error)), this, SLOT (geoError(QGeoPositionInfoSource::Error)));
-        connect(_geoPositionInfoSource, SIGNAL(positionUpdated(const QGeoPositionInfo&)), this, SLOT (geoPositionUpdated(const QGeoPositionInfo&)));
-        connect(_geoPositionInfoSource, SIGNAL(updateTimeout()), this, SLOT (geoUpdateTimeout()));
+            connect(_geoPositionInfoSource, SIGNAL(error(QGeoPositionInfoSource::Error)), this, SLOT (geoError(QGeoPositionInfoSource::Error)));
+            connect(_geoPositionInfoSource, SIGNAL(positionUpdated(const QGeoPositionInfo&)), this, SLOT (geoPositionUpdated(const QGeoPositionInfo&)));
+            connect(_geoPositionInfoSource, SIGNAL(updateTimeout()), this, SLOT (geoUpdateTimeout()));
 
-//        _geoPositionInfoSource->setUpdateInterval(1000);
-        _geoPositionInfoSource->startUpdates();
-        startTimer(1000);
+    //        _geoPositionInfoSource->setUpdateInterval(1000);
+            _geoPositionInfoSource->startUpdates();
+        }
     }
 }
 
 void GpsSource::updateData()
 {
-    if(_reqTimeout == false)
     {
-        return;
+        QVariantMap data;
+        data["valid"] = _currentGeoPositionInfo.isValid();
+        data["lat"] = _currentGeoPositionInfo.coordinate().latitude();
+        data["lon"] = _currentGeoPositionInfo.coordinate().longitude();
+
+        data["okCount"] = _geoOkCount;
+        data["errCount"] = _geoErrCount;
+        data["timeoutCount"] = _geoTimeoutCount;
+
+        emit changed(data);
     }
-
-    if(_isReq == true)
-    {
-        return;
-    }
-
-    _reqTimeout = false;
-    _isReq = true;
-
-    if(_geoPositionInfoSource == NULL)
-        return;
-
-    int timeout = qMax(_geoPositionInfoSource->minimumUpdateInterval(), 1000);
-    _geoPositionInfoSource->requestUpdate(timeout);
-
-//    ui->geoReqCountWidget->setText(QString::number(++_geoReqCount) + "/" + QString::number(_geoPassCount));
-//    ui->geoStatusWidget->setText(tr("Req"));
-
-    emit changed(_currentGeoPositionInfo.coordinate().latitude(), _currentGeoPositionInfo.coordinate().longitude());
 }
 
 void GpsSource::geoError(QGeoPositionInfoSource::Error positioningError)
 {
     Q_UNUSED(positioningError);
-//    ui->geoErrorWidget->setText(tr("Err: %1").arg(positioningError));
+    _geoErrCount++;
+    _currentGeoPositionInfo.coordinate() = {};
+    qDebug() << __FUNCTION__ << _geoErrCount << " - "<< positioningError;
+    if(_reqTimerId > 0)
+        killTimer(_reqTimerId);
+    _reqTimerId = startTimer(1000);
 
-    _isReq = false;
-    updateData();
-}
-
-void GpsSource::geoPositionUpdated(const QGeoPositionInfo& geoPositionInfo)
-{
-    _currentGeoPositionInfo = geoPositionInfo;
-    //_geoWidget->setLatLonDeg(_currentGeoPositionInfo.coordinate().latitude(), _currentGeoPositionInfo.coordinate().longitude());
-
-    _isReq = false;
     updateData();
 }
 
 void GpsSource::geoUpdateTimeout()
 {
-    _geoPassCount++;
-//    ui->geoStatusWidget->setText(tr("Timeout"));
+    _geoTimeoutCount++;
+    _currentGeoPositionInfo.coordinate() = {};
 
-    _isReq = false;
+    qDebug() << __FUNCTION__ << _geoTimeoutCount;
+
+    if(_reqTimerId > 0)
+        killTimer(_reqTimerId);
+    _reqTimerId = startTimer(1000);
+
     updateData();
+}
+
+void GpsSource::geoPositionUpdated(const QGeoPositionInfo& geoPositionInfo)
+{
+    _geoOkCount++;
+    qDebug() << __FUNCTION__ << _geoOkCount;
+    _currentGeoPositionInfo = geoPositionInfo;
+    updateData();
+    requestUpdate();
+}
+
+void GpsSource::requestUpdate()
+{
+    if(_geoPositionInfoSource != nullptr)
+    {
+        int timeout = qMax(_geoPositionInfoSource->minimumUpdateInterval(), 1000);
+        _geoPositionInfoSource->requestUpdate(timeout);
+    }
 }
