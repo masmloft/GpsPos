@@ -60,6 +60,8 @@ void GpsSource::updateData()
 
 //    ui->geoReqCountWidget->setText(QString::number(++_geoReqCount) + "/" + QString::number(_geoPassCount));
 //    ui->geoStatusWidget->setText(tr("Req"));
+
+    emit changed(_currentGeoPositionInfo.coordinate().latitude(), _currentGeoPositionInfo.coordinate().longitude());
 }
 
 void GpsSource::geoError(QGeoPositionInfoSource::Error positioningError)

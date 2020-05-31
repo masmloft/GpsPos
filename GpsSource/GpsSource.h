@@ -12,6 +12,8 @@ public:
     ~GpsSource();
 public:
     void startLocation();
+signals:
+    void changed(double lat, double lon);
 protected:
     void timerEvent(QTimerEvent* event) override;
 private:
