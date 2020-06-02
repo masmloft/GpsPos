@@ -28,6 +28,12 @@ void GeoWidget::paintEvent(QPaintEvent *event)
         QPoint pos = latLonPointToPos(_selfPos);
         painter.drawEllipse(pos, POINT_RADIUS, POINT_RADIUS);
 
+        {
+            QSize c = this->size() / 2;
+            painter.drawLine(c.width() - 5, c.height(), c.width() + 5, c.height());
+            painter.drawLine(c.width(), c.height() - 5, c.width(), c.height() + 5);
+        }
+
         //painter.drawText(3, 3, tr("%1 %2").arg(_selfPos.lat()).arg(_selfPos.lon()));
         {
             QString str = tr("%1 %2").arg(MATH_RADTODEG(_selfPos.lat()), 0, 'f', 6).arg(MATH_RADTODEG(_selfPos.lon()), 0, 'f', 6);

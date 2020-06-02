@@ -33,13 +33,15 @@ void GpsSource::startLocation()
 
         if(_geoPositionInfoSource != nullptr)
         {
-            _geoPositionInfoSource->setPreferredPositioningMethods(QGeoPositionInfoSource::SatellitePositioningMethods);
+            _geoPositionInfoSource->setPreferredPositioningMethods(QGeoPositionInfoSource::AllPositioningMethods);
 
             connect(_geoPositionInfoSource, SIGNAL(error(QGeoPositionInfoSource::Error)), this, SLOT (geoError(QGeoPositionInfoSource::Error)));
             connect(_geoPositionInfoSource, SIGNAL(positionUpdated(const QGeoPositionInfo&)), this, SLOT (geoPositionUpdated(const QGeoPositionInfo&)));
             connect(_geoPositionInfoSource, SIGNAL(updateTimeout()), this, SLOT (geoUpdateTimeout()));
 
-    //        _geoPositionInfoSource->setUpdateInterval(1000);
+            //qDebug() << _geoPositionInfoSource->minimumUpdateInterval();
+            int interval = qMax(_geoPositionInfoSource->minimumUpdateInterval(), 1000);
+            _geoPositionInfoSource->setUpdateInterval(interval);
             _geoPositionInfoSource->startUpdates();
         }
     }
@@ -101,7 +103,7 @@ void GpsSource::requestUpdate()
 {
     if(_geoPositionInfoSource != nullptr)
     {
-        int timeout = qMax(_geoPositionInfoSource->minimumUpdateInterval(), 1000);
-        _geoPositionInfoSource->requestUpdate(timeout);
+//        int timeout = qMax(_geoPositionInfoSource->minimumUpdateInterval(), 1000);
+//        _geoPositionInfoSource->requestUpdate(timeout);
     }
 }

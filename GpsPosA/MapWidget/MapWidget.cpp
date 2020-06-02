@@ -25,7 +25,8 @@ MapWidget::MapWidget(QWidget* parent)
 	this->setLayout(gridLayout);
 
 	QToolButton* zoomOutToolButton = new QToolButton(this);
-	zoomOutToolButton->setArrowType(Qt::UpArrow);
+    //zoomOutToolButton->setArrowType(Qt::UpArrow);
+    zoomOutToolButton->setText("-");
 	zoomOutToolButton->setAutoRaise(true);
 	connect(zoomOutToolButton, SIGNAL(clicked()), this, SLOT(on_zoomOutPushButton_clicked()));
 	gridLayout->addWidget(zoomOutToolButton, 0, 0);
@@ -36,7 +37,8 @@ MapWidget::MapWidget(QWidget* parent)
 	gridLayout->addWidget(_zoomWidget, 1, 0);
 
 	QToolButton* zoomInToolButton = new QToolButton(this);
-	zoomInToolButton->setArrowType(Qt::DownArrow);
+    //zoomInToolButton->setArrowType(Qt::DownArrow);
+    zoomInToolButton->setText("+");
 	zoomInToolButton->setAutoRaise(true);
 	connect(zoomInToolButton, SIGNAL(clicked()), this, SLOT(on_zoomInPushButton_clicked()));
 	gridLayout->addWidget(zoomInToolButton, 2, 0);
@@ -180,6 +182,12 @@ void MapWidget::paintEvent(QPaintEvent* event)
 
 	if (_tileManager != NULL)
 		_tileManager->endReqTile();
+
+//    {
+//        QSize c = this->size() / 2;
+//        painter.drawLine(c.width() - 3, c.height(), c.width() + 3, c.height());
+//        painter.drawLine(c.width(), c.height() - 3, c.width(), c.height() + 3);
+//    }
 
 	QWidget::paintEvent(event);
 }
