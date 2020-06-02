@@ -3,6 +3,7 @@
 
 #include "MainWindow.h"
 #include "GpsSource/GpsSource.h"
+#include "RemoteClient/RemoteClient.h"
 
 int main(int argc, char *argv[])
 {
@@ -23,6 +24,9 @@ int main(int argc, char *argv[])
 	QApplication a(argc, argv);
 
     GpsSource gpsSource(nullptr);
+
+	RemoteClient remoteClient(nullptr);
+	QObject::connect(&gpsSource, &GpsSource::changed, &remoteClient, &RemoteClient::gpsChanged);
 
 	MainWindow w(NULL);
 
