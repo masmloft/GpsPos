@@ -13,7 +13,7 @@ public:
 private:
 	struct NetPoint
 	{
-        uint64_t lastTime = 0;
+        int64_t lastTick = 0;
 		QHostAddress addr;
 		uint16_t port = 0;
 	};

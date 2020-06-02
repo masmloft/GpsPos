@@ -1,5 +1,12 @@
 #include "UdpBridge.h"
 
+#include <QDateTime>
+
+static int64_t getTick()
+{
+    return QDateTime::currentDateTime().toMSecsSinceEpoch();
+}
+
 UdpBridge::UdpBridge(QObject* parent)
 	: QObject(parent)
 {
@@ -37,7 +44,7 @@ void UdpBridge::ioReadyRead()
 
 		if(buf == "REG\n")
 		{
-			_obClients.append({sender, senderPort});
+            _obClients.append({getTick(), sender, senderPort});
 		}
 		else
 		{
