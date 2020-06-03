@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QTextCodec>
+#include <QSysInfo>
 
 #include "MainWindow.h"
 #include "GpsSource/GpsSource.h"
@@ -25,13 +26,18 @@ int main(int argc, char *argv[])
 
     GpsSource gpsSource(nullptr);
 
+//	qDebug() << "machineHostName: " << QSysInfo::prettyProductName();
+//	qDebug() << "machineUniqueId: " << QSysInfo::machineUniqueId();
+
 	RemoteClient remoteClient(nullptr);
-	QObject::connect(&gpsSource, &GpsSource::changed, &remoteClient, &RemoteClient::gpsChanged);
-	remoteClient.gpsChanged({});
+	remoteClient.setCid(QSysInfo::prettyProductName().mid(0, 16).toLatin1());
+	QObject::connect(&gpsSource, &GpsSource::changed, &remoteClient, &RemoteClient::sendGps);
+	//remoteClient.sendGps({});
 
 	MainWindow w(NULL);
 
-    QObject::connect(&gpsSource, &GpsSource::changed, &w, &MainWindow::gpsChanged);
+	QObject::connect(&gpsSource, &GpsSource::changed, &w, &MainWindow::gpsChanged);
+	QObject::connect(&remoteClient, &RemoteClient::recvGps, &w, &MainWindow::gpsChanged);
 
     w.showMaximized();
 

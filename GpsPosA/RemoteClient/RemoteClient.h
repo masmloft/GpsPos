@@ -45,14 +45,18 @@ class RemoteClient : public QObject
 public:
 	explicit RemoteClient(QObject* parent);
 	~RemoteClient();
+public:
+	void setCid(const QByteArray& cid) { _cid = cid; }
+signals:
+	void recvGps(const QVariantMap& data);
 public slots:
-	void gpsChanged(const QVariantMap& data);
+	void sendGps(const QVariantMap& data);
 private slots:
 	void ioReadyRead();
 private:
 	void timerEvent(QTimerEvent*) override;
 private:
-	QByteArray _cid{"PT0000"};
+	QByteArray _cid{"0000"};
 //	QHostAddress _remoteAddr{"192.168.10.225"};
 	QHostAddress _remoteAddr{"176.36.121.108"};
 	uint16_t _remotePort = 1025;

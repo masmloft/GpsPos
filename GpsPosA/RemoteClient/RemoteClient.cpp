@@ -37,9 +37,10 @@ void RemoteClient::timerEvent(QTimerEvent*)
 	_remRegNotifier.doTimeout(currTick);
 }
 
-void RemoteClient::gpsChanged(const QVariantMap& data)
+void RemoteClient::sendGps(const QVariantMap& data)
 {
 	bool valid = data.value("valid", false).toBool();
+	int64_t time = data.value("time", 0).toLongLong();
 
 	double lat = data.value("lat", 0).toDouble();
 	double lon = data.value("lon", 0).toDouble();
@@ -52,10 +53,11 @@ void RemoteClient::gpsChanged(const QVariantMap& data)
 
 	//txBuf += "\x02";
 
-	txBuf += "CID:" + _cid;
-	txBuf += QByteArray(";STA:") + (valid ? "1" : "0");
-	txBuf += ";LAT:" + QByteArray::number(lat, 'f', 8);
-	txBuf += ";LON:" + QByteArray::number(lon, 'f', 8);
+	txBuf += "cid:" + _cid;
+	txBuf += QByteArray(";valid:") + (valid ? "1" : "0");
+	txBuf += ";time:" + QByteArray::number(time);
+	txBuf += ";lat:" + QByteArray::number(lat, 'f', 8);
+	txBuf += ";lon:" + QByteArray::number(lon, 'f', 8);
 
 	txBuf += "\n";
 
@@ -75,10 +77,28 @@ void RemoteClient::ioReadyRead()
 	QHostAddress sender;
 	quint16 senderPort;
 	_io->readDatagram(rxBuf.data(), rxBuf.size(), &sender, &senderPort);
-	qDebug() << "RX>" << "ADDR:" << sender.toString() << ";DATA:" << rxBuf;
+	//qDebug() << "RX>" << "ADDR:" << sender.toString() << ";DATA:" << rxBuf;
 
-	//CID:PT0000,STA:1,LAT:50.44073500,LON:30.54198333
+	QVariantMap map;
 
-	d
+	QList<QByteArray> fields = rxBuf.split(';');
+	for(auto field : fields)
+	{
+		QList<QByteArray> keyValue = field.split(':');
+		if(keyValue.size() == 2)
+			map[keyValue.at(0)] = keyValue.at(1);
+	}
+
+	QByteArray cid = map.value("cid", "").toByteArray();
+	if(cid != _cid)
+	{
+		double lat = map.value("lat", 0).toDouble();
+		double lon = map.value("lon", 0).toDouble();
+
+		if(map.contains("cid") && map.contains("lat") && map.contains("lon"))
+		{
+			emit(recvGps(map));
+		}
+	}
 
 }

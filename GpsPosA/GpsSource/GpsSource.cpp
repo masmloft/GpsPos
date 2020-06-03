@@ -51,10 +51,11 @@ void GpsSource::updateData()
 {
     {
         QVariantMap data;
-        data["valid"] = _currentGeoPositionInfo.isValid();
-        data["lat"] = _currentGeoPositionInfo.coordinate().latitude();
+		data["cid"] = QByteArray("MY");
+		data["valid"] = _currentGeoPositionInfo.isValid();
+		data["time"] = _currentGeoPositionInfo.timestamp().toMSecsSinceEpoch();
+		data["lat"] = _currentGeoPositionInfo.coordinate().latitude();
         data["lon"] = _currentGeoPositionInfo.coordinate().longitude();
-
         data["okCount"] = _geoOkCount;
         data["errCount"] = _geoErrCount;
         data["timeoutCount"] = _geoTimeoutCount;
