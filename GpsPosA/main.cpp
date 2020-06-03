@@ -7,7 +7,7 @@
 
 int main(int argc, char *argv[])
 {
-     QCoreApplication::setApplicationName("GpsRemPos");
+	QCoreApplication::setApplicationName("GpsRemPos");
 	QCoreApplication::setApplicationVersion("0.1.0");
 	QCoreApplication::setOrganizationName("Smloft"); 
 
@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
 
 	RemoteClient remoteClient(nullptr);
 	QObject::connect(&gpsSource, &GpsSource::changed, &remoteClient, &RemoteClient::gpsChanged);
+	//remoteClient.gpsChanged({});
 
 	MainWindow w(NULL);
 

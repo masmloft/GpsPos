@@ -19,7 +19,7 @@ private:
 private:
 	QByteArray _cid{"PT0000"};
 //	QHostAddress _remoteAddr{"192.168.10.225"};
-	QHostAddress _remoteAddr{"sml.pp.ua"};
+	QHostAddress _remoteAddr{"176.36.121.108"};
 	uint16_t _remotePort = 1025;
 	QUdpSocket* _io = nullptr;
 
