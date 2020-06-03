@@ -53,9 +53,9 @@ void RemoteClient::gpsChanged(const QVariantMap& data)
 	//txBuf += "\x02";
 
 	txBuf += "CID:" + _cid;
-	txBuf += QByteArray(",STA:") + (valid ? "1" : "0");
-	txBuf += ",LAT:" + QByteArray::number(lat, 'f', 8);
-	txBuf += ",LON:" + QByteArray::number(lon, 'f', 8);
+	txBuf += QByteArray(";STA:") + (valid ? "1" : "0");
+	txBuf += ";LAT:" + QByteArray::number(lat, 'f', 8);
+	txBuf += ";LON:" + QByteArray::number(lon, 'f', 8);
 
 	txBuf += "\n";
 
@@ -76,5 +76,9 @@ void RemoteClient::ioReadyRead()
 	quint16 senderPort;
 	_io->readDatagram(rxBuf.data(), rxBuf.size(), &sender, &senderPort);
 	qDebug() << "RX>" << "ADDR:" << sender.toString() << ";DATA:" << rxBuf;
+
+	//CID:PT0000,STA:1,LAT:50.44073500,LON:30.54198333
+
+	d
 
 }
