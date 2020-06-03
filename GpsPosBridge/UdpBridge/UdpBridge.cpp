@@ -43,10 +43,11 @@ void UdpBridge::ioReadyRead()
 		QHostAddress sender;
 		quint16 senderPort;
 		_io->readDatagram(buf.data(), buf.size(), &sender, &senderPort);
+		qDebug() << "RX>" << "ADDR:" << sender.toString() << ";DATA:" << buf;
 
 		if(buf == "REG\n")
 		{
-			qDebug() << "REG;" << "ADDR:" << sender.toString();
+			//qDebug() << "REG;" << "ADDR:" << sender.toString();
 			//_obClients.in
             _obClients.append({getTick(), sender, senderPort});
 
