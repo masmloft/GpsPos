@@ -68,7 +68,7 @@ void UdpBridge::ioReadyRead()
 
 		if(buf == "BRIDGE:REG\n")
 		{
-			auto predicate = [sender, senderPort](const NetPoint& item)
+			auto predicate = [sender, senderPort](auto item)
 			{
 				return (item.blocked == false) && (item.addr == sender) && (item.port == senderPort);
 			};
