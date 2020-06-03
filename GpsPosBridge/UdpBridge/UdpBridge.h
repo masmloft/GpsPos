@@ -1,7 +1,6 @@
 #include <QUdpSocket>
 
 #include <list>
-#include <QList>
 
 class UdpBridge : public QObject
 {
@@ -24,6 +23,7 @@ private:
 	std::list<NetPoint> _obClients;
 private:
 	void timerEvent(QTimerEvent*) override;
+	void send(const QByteArray &datagram, const QHostAddress &host, quint16 port);
 private slots:
 	void ioReadyRead();
 };

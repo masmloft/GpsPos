@@ -32,7 +32,7 @@ void UdpBridge::timerEvent(QTimerEvent*)
 			{
 				item.blocked = true;
 				QByteArray txBuf("BRIDGE:UNREGED\n");
-				_io->writeDatagram(txBuf.data(), txBuf.size(), item.addr, item.port);
+				send(txBuf, item.addr, item.port);
 			}
 		}
 	}
@@ -53,20 +53,26 @@ bool UdpBridge::open(uint16_t port)
 	return  ret;
 }
 
+void UdpBridge::send(const QByteArray& datagram, const QHostAddress &host, quint16 port)
+{
+	_io->writeDatagram(datagram, host, port);
+	qDebug() << "TX>" << "ADDR:" << host.toString() << ":" << port << ";DATA:" << datagram;
+}
+
 void UdpBridge::ioReadyRead()
 {
 	qint64 rxSize = _io->pendingDatagramSize();
 	if(rxSize > 0)
 	{
-		QByteArray buf;
-		buf.resize(rxSize);
+		QByteArray rxBuf;
+		rxBuf.resize(rxSize);
 
 		QHostAddress sender;
 		quint16 senderPort;
-		_io->readDatagram(buf.data(), buf.size(), &sender, &senderPort);
-		qDebug() << "RX>" << "ADDR:" << sender.toString() << ";DATA:" << buf;
+		_io->readDatagram(rxBuf.data(), rxBuf.size(), &sender, &senderPort);
+		qDebug() << "RX>" << "ADDR:" << sender.toString() << ";DATA:" << rxBuf;
 
-		if(buf == "BRIDGE:REG\n")
+		if(rxBuf == "BRIDGE:REG\n")
 		{
 			auto predicate = [sender, senderPort](auto item)
 			{
@@ -89,14 +95,14 @@ void UdpBridge::ioReadyRead()
 			}
 
 			QByteArray txBuf("BRIDGE:REGED\n");
-			_io->writeDatagram(txBuf.data(), txBuf.size(), sender, senderPort);
+			send(txBuf, sender, senderPort);
 		}
 		else
 		{
 			for(const NetPoint& item : _obClients)
 			{
 				if(item.blocked == false)
-					_io->writeDatagram(buf.data(), buf.size(), item.addr, item.port);
+					send(rxBuf, item.addr, item.port);
 			}
 		}
 	}
