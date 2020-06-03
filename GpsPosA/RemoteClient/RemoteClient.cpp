@@ -40,7 +40,7 @@ void RemoteClient::gpsChanged(const QVariantMap& data)
 	txBuf += "\n";
 
 	qint64 ret = _io->writeDatagram(txBuf.data(), txBuf.size(), _remoteAddr, _remotePort);
-	qDebug() << "TX>" << _remoteAddr << ":" << _remotePort << ";RET:" << ret;
+//	qDebug() << "TX>" << _remoteAddr << ":" << _remotePort << ";RET:" << ret;
 
 }
 

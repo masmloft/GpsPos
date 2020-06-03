@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
 	RemoteClient remoteClient(nullptr);
 	QObject::connect(&gpsSource, &GpsSource::changed, &remoteClient, &RemoteClient::gpsChanged);
-	//remoteClient.gpsChanged({});
+	remoteClient.gpsChanged({});
 
 	MainWindow w(NULL);
 

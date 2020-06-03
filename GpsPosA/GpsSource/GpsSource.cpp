@@ -68,7 +68,7 @@ void GpsSource::geoError(QGeoPositionInfoSource::Error positioningError)
     Q_UNUSED(positioningError);
     _geoErrCount++;
     _currentGeoPositionInfo.coordinate() = {};
-    qDebug() << __FUNCTION__ << _geoErrCount << " - "<< positioningError;
+	//qDebug() << __FUNCTION__ << _geoErrCount << " - "<< positioningError;
     if(_reqTimerId > 0)
         killTimer(_reqTimerId);
     _reqTimerId = startTimer(1000);
@@ -81,7 +81,7 @@ void GpsSource::geoUpdateTimeout()
     _geoTimeoutCount++;
     _currentGeoPositionInfo.coordinate() = {};
 
-    qDebug() << __FUNCTION__ << _geoTimeoutCount;
+	//qDebug() << __FUNCTION__ << _geoTimeoutCount;
 
     if(_reqTimerId > 0)
         killTimer(_reqTimerId);
@@ -93,7 +93,7 @@ void GpsSource::geoUpdateTimeout()
 void GpsSource::geoPositionUpdated(const QGeoPositionInfo& geoPositionInfo)
 {
     _geoOkCount++;
-    qDebug() << __FUNCTION__ << _geoOkCount;
+	//qDebug() << __FUNCTION__ << _geoOkCount;
     _currentGeoPositionInfo = geoPositionInfo;
     updateData();
     requestUpdate();
