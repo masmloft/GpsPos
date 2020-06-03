@@ -44,6 +44,7 @@ void UdpBridge::ioReadyRead()
 
 		if(buf == "REG\n")
 		{
+			//_obClients.in
             _obClients.append({getTick(), sender, senderPort});
 		}
 		else
