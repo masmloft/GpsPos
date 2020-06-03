@@ -4,6 +4,7 @@
 
 int main(int argc, char *argv[])
 {
+	qDebug() << "Starting...";
 	QCoreApplication qapp(argc, argv);
 
 	UdpBridge udpBridge(nullptr);

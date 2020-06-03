@@ -25,6 +25,8 @@ bool UdpBridge::open(uint16_t port)
 	_io = new QUdpSocket(this);
 	bool ret = _io->bind(QHostAddress::Any, port);
 
+	qDebug() << "Open socket - " << (ret ? "OK" : "ERR");
+
 	connect(_io, SIGNAL(readyRead()), this, SLOT(ioReadyRead()));
 
 	return  ret;
@@ -44,8 +46,12 @@ void UdpBridge::ioReadyRead()
 
 		if(buf == "REG\n")
 		{
+			qDebug() << "REG;" << "ADDR:" << sender.toString();
 			//_obClients.in
             _obClients.append({getTick(), sender, senderPort});
+
+			QByteArray txBuf("REG:REGED\n");
+			_io->writeDatagram(txBuf.data(), txBuf.size(), sender, senderPort);
 		}
 		else
 		{

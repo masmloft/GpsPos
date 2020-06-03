@@ -18,7 +18,8 @@ private:
 	void timerEvent(QTimerEvent* event);
 private:
 	QByteArray _cid{"PT0000"};
-	QHostAddress _remoteAddr{"192.168.10.225"};
+//	QHostAddress _remoteAddr{"192.168.10.225"};
+	QHostAddress _remoteAddr{"sml.pp.ua"};
 	uint16_t _remotePort = 1025;
 	QUdpSocket* _io = nullptr;
 
