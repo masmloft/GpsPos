@@ -75,8 +75,15 @@ void GpsUdpClient::ioReadyRead()
 	rxBuf.resize(rxSize);
 	QHostAddress sender;
 	quint16 senderPort;
-	_io->readDatagram(rxBuf.data(), rxBuf.size(), &sender, &senderPort);
+	qint64 ioRet = _io->readDatagram(rxBuf.data(), rxBuf.size(), &sender, &senderPort);
 	//qDebug() << "RX>" << "ADDR:" << sender.toString() << ";DATA:" << rxBuf;
+
+	if(ioRet == 0)
+		return;
+	rxBuf.resize(ioRet);
+	if(rxBuf.back() != '\n')
+		return;
+	rxBuf.remove(rxBuf.size() - 1, 1);
 
 	QVariantMap map;
 
