@@ -6,45 +6,14 @@
 #include <QVariant>
 #include <QUdpSocket>
 
-class TimeNotifier
-{
-	int64_t _timeout = 0;
-	std::function<void()> _func;
-	int64_t _lastTick = 0;
-public:
-	TimeNotifier()
-	{
-	}
+#include "Classes/TimeNotifier.h"
 
-	TimeNotifier(int64_t timeout, std::function<void()> func)
-		: _timeout(timeout)
-		, _func(func)
-	{
-	}
-
-	void setArg(int64_t timeout, std::function<void()> func)
-	{
-		_timeout = timeout;
-		_func = func;
-	}
-
-	void doTimeout(int64_t currTick)
-	{
-		if(qAbs(currTick - _lastTick) > _timeout)
-		{
-			if(_func)
-				_func();
-			_lastTick = currTick;
-		}
-	}
-};
-
-class RemoteClient : public QObject
+class GpsUdpClient : public QObject
 {
     Q_OBJECT
 public:
-	explicit RemoteClient(QObject* parent);
-	~RemoteClient();
+	explicit GpsUdpClient(QObject* parent);
+	~GpsUdpClient();
 public:
 	void setCid(const QByteArray& cid) { _cid = cid; }
 signals:

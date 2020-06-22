@@ -56,7 +56,8 @@ void GpsSource::updateData()
 		data["time"] = _currentGeoPositionInfo.timestamp().toMSecsSinceEpoch();
 		data["lat"] = _currentGeoPositionInfo.coordinate().latitude();
         data["lon"] = _currentGeoPositionInfo.coordinate().longitude();
-        data["okCount"] = _geoOkCount;
+		data["alt"] = _currentGeoPositionInfo.coordinate().altitude();
+		data["okCount"] = _geoOkCount;
         data["errCount"] = _geoErrCount;
         data["timeoutCount"] = _geoTimeoutCount;
 

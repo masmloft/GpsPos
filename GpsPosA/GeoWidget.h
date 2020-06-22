@@ -26,6 +26,7 @@ private:
 		bool gpsValid = false;
 		int64_t gpsTime = 0;
 		LatLonPoint gpsPos;
+		double alt;
 		uint okCount = 0;
 		uint errCount = 0;
 		uint timeoutCount = 0;

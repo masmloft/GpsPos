@@ -1,4 +1,4 @@
-#include "RemoteClient.h"
+#include "GpsUdpClient.h"
 
 #include <QDateTime>
 #include <QTimerEvent>
@@ -9,7 +9,7 @@ static int64_t getTick()
 	return QDateTime::currentDateTime().toMSecsSinceEpoch();
 }
 
-RemoteClient::RemoteClient(QObject* parent)
+GpsUdpClient::GpsUdpClient(QObject* parent)
     : QObject(parent)
 {
 	_io = new QUdpSocket(this);
@@ -27,37 +27,40 @@ RemoteClient::RemoteClient(QObject* parent)
 	startTimer(1000);
 }
 
-RemoteClient::~RemoteClient()
+GpsUdpClient::~GpsUdpClient()
 {
 }
 
-void RemoteClient::timerEvent(QTimerEvent*)
+void GpsUdpClient::timerEvent(QTimerEvent*)
 {
 	int64_t currTick = getTick();
 	_remRegNotifier.doTimeout(currTick);
 }
 
-void RemoteClient::sendGps(const QVariantMap& data)
+void GpsUdpClient::sendGps(const QVariantMap& data)
 {
 	bool valid = data.value("valid", false).toBool();
 	int64_t time = data.value("time", 0).toLongLong();
 
 	double lat = data.value("lat", 0).toDouble();
 	double lon = data.value("lon", 0).toDouble();
+	double alt = data.value("alt", 0).toDouble();
 
-	uint okCount = data.value("okCount", 0).toUInt();
-	uint errCount = data.value("errCount", 0).toUInt();
-	uint timeoutCount = data.value("timeoutCount", 0).toUInt();
+//	uint okCount = data.value("okCount", 0).toUInt();
+//	uint errCount = data.value("errCount", 0).toUInt();
+//	uint timeoutCount = data.value("timeoutCount", 0).toUInt();
 
 	QByteArray txBuf;
+	txBuf.reserve(256);
 
-	//txBuf += "\x02";
+	txBuf = "$CVTLLA";
 
-	txBuf += "cid:" + _cid;
-	txBuf += QByteArray(";valid:") + (valid ? "1" : "0");
-	txBuf += ";time:" + QByteArray::number(time);
-	txBuf += ";lat:" + QByteArray::number(lat, 'f', 8);
-	txBuf += ";lon:" + QByteArray::number(lon, 'f', 8);
+	txBuf += "," + _cid;
+	txBuf += (valid ? ",Y" : ",N");
+	txBuf += "," + QByteArray::number(time);
+	txBuf += "," + QByteArray::number(lat, 'f', 8);
+	txBuf += "," + QByteArray::number(lon, 'f', 8);
+	txBuf += "," + QByteArray::number(alt, 'f', 1);
 
 	txBuf += "\n";
 
@@ -66,7 +69,7 @@ void RemoteClient::sendGps(const QVariantMap& data)
 
 }
 
-void RemoteClient::ioReadyRead()
+void GpsUdpClient::ioReadyRead()
 {
 	const qint64 rxSize = _io->pendingDatagramSize();
 	if(rxSize <= 0)
@@ -81,24 +84,27 @@ void RemoteClient::ioReadyRead()
 
 	QVariantMap map;
 
-	QList<QByteArray> fields = rxBuf.split(';');
-	for(auto field : fields)
-	{
-		QList<QByteArray> keyValue = field.split(':');
-		if(keyValue.size() == 2)
-			map[keyValue.at(0)] = keyValue.at(1);
-	}
+	QList<QByteArray> fields = rxBuf.split(',');
 
-	QByteArray cid = map.value("cid", "").toByteArray();
-	if(cid != _cid)
+	if(fields.size() > 1)
 	{
-		double lat = map.value("lat", 0).toDouble();
-		double lon = map.value("lon", 0).toDouble();
-
-		if(map.contains("cid") && map.contains("lat") && map.contains("lon"))
+		if((fields.at(0) == "$CVTLLA") && (fields.size() == 1 + 6))
 		{
-			emit(recvGps(map));
+			map["cid"] = fields.at(1);
+			map["valid"] = (fields.at(2) == "Y") ? true : false;
+			map["time"] = fields.at(3).toLongLong();
+			map["lat"] = fields.at(4).toDouble();
+			map["lon"] = fields.at(5).toDouble();
+			map["alt"] = fields.at(6).toDouble();
+
+			if(map["cid"] != _cid)
+			{
+				if(map.contains("cid") && map.contains("lat") && map.contains("lon"))
+				{
+					emit(recvGps(map));
+				}
+			}
+
 		}
 	}
-
 }
