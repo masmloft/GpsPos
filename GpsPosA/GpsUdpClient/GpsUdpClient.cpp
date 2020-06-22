@@ -46,10 +46,6 @@ void GpsUdpClient::sendGps(const QVariantMap& data)
 	double lon = data.value("lon", 0).toDouble();
 	double alt = data.value("alt", 0).toDouble();
 
-//	uint okCount = data.value("okCount", 0).toUInt();
-//	uint errCount = data.value("errCount", 0).toUInt();
-//	uint timeoutCount = data.value("timeoutCount", 0).toUInt();
-
 	QByteArray txBuf;
 	txBuf.reserve(256);
 
