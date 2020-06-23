@@ -101,7 +101,7 @@ void UdpBridge::ioReadyRead()
 			}
 			else
 			{
-				NetPoint point{false, getTick(), sender, senderPort};
+				NetPoint point{false, getTick(), sender, senderPort, cid};
 				auto it = std::find_if(_obClients.begin(), _obClients.end(), [](auto item) { return (item.blocked == true); });
 				if(it != _obClients.end())
 					*it = point;

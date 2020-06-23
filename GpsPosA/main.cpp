@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
 	GpsUdpClient gpsUdpClient(nullptr);
 	gpsUdpClient.setCid(cid);
 	QObject::connect(&gpsSource, &GpsSource::changed, &gpsUdpClient, &GpsUdpClient::sendGps);
+	gpsUdpClient.open("176.36.121.108:1025");
 	//gpsUdpClient.sendGps({});
 
 	MainWindow w(NULL);
