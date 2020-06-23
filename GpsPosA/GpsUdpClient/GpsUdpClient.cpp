@@ -122,7 +122,7 @@ void GpsUdpClient::ioReadyRead()
 	QHostAddress sender;
 	quint16 senderPort;
 	qint64 ioRet = _io->readDatagram(rxBuf.data(), rxBuf.size(), &sender, &senderPort);
-	//qDebug() << "RX>" << "ADDR:" << sender.toString() << ";DATA:" << rxBuf;
+	qDebug() << "RX>" << "ADDR:" << sender.toString() << ";DATA:" << rxBuf;
 
 	if(ioRet == 0)
 		return;
@@ -135,6 +135,7 @@ void GpsUdpClient::ioReadyRead()
 
 	if(rxFields.size() > 1)
 	{
+		sendGps({});
 		if((rxFields.at(0) == "$CVTLLA") && (rxFields.size() == 1 + 6))
 		{
 			_rxGpsTimeoutNotifier.reset(getTick());

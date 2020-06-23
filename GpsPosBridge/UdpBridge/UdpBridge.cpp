@@ -56,7 +56,7 @@ bool UdpBridge::open(uint16_t port)
 void UdpBridge::send(const QByteArray& datagram, const QHostAddress &host, quint16 port)
 {
 	_io->writeDatagram(datagram, host, port);
-	qDebug() << QDateTime::currentDateTime().toString(Qt::ISODate) << ": [TX]" << " ADDR:" << host.toString() << ":" << port << " DATA:" << datagram.mid(0, datagram.size() - 1);
+	qDebug() << QDateTime::currentDateTime().toString(Qt::ISODate) << ": [TX]" << " ADDR:" << host.toString() << ":" << port << " DATA:" << datagram;//.mid(0, datagram.size() - 1);
 }
 
 void UdpBridge::ioReadyRead()
