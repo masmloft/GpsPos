@@ -29,7 +29,10 @@ void GpsSource::startLocation()
 {
     if (_geoPositionInfoSource == nullptr)
     {
-        _geoPositionInfoSource = QGeoPositionInfoSource::createDefaultSource(this);
+//		QVariantMap parameters;
+//		parameters["serial_port"] = QString("COM22");
+//		_geoPositionInfoSource = QGeoPositionInfoSource::createDefaultSource(parameters, this);
+		_geoPositionInfoSource = QGeoPositionInfoSource::createDefaultSource(this);
 
         if(_geoPositionInfoSource != nullptr)
         {

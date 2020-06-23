@@ -4,6 +4,7 @@
 
 #include "MainWindow.h"
 #include "GpsSource/GpsSource.h"
+#include "GpsSource/GpsSatellite.h"
 #include "GpsUdpClient/GpsUdpClient.h"
 
 int main(int argc, char *argv[])
@@ -24,23 +25,7 @@ int main(int argc, char *argv[])
 
 	QApplication a(argc, argv);
 
-    GpsSource gpsSource(nullptr);
-
-//	qDebug() << "machineUniqueId: " << QSysInfo::buildCpuArchitecture();
-//	qDebug() << "machineUniqueId: " << QSysInfo::currentCpuArchitecture();
-//	qDebug() << "machineUniqueId: " << QSysInfo::buildAbi();
-
-//	qDebug() << "machineUniqueId: " << QSysInfo::kernelType();
-//	qDebug() << "machineUniqueId: " << QSysInfo::kernelVersion();
-//	qDebug() << "machineUniqueId: " << QSysInfo::productType();
-//	qDebug() << "machineUniqueId: " << QSysInfo::productVersion();
-//	qDebug() << "machineUniqueId: " << QSysInfo::prettyProductName();
-
-//	qDebug() << "machineUniqueId: " << QSysInfo::machineHostName();
-//	qDebug() << "machineUniqueId: " << QSysInfo::machineUniqueId();
-//	qDebug() << "machineUniqueId: " << QSysInfo::bootUniqueId();
-
-//	qDebug() << "---------------------";
+	GpsSource gpsSource;
 
 	QByteArray cid;
 	{
@@ -72,7 +57,11 @@ int main(int argc, char *argv[])
 
     w.showMaximized();
 
-    gpsSource.startLocation();
+	//gpsSource.startLocation();
+
+	GpsSatellite gpsSatellite;
+	gpsSatellite.open();
+
 
 	return a.exec();
 }

@@ -15,7 +15,7 @@ public:
         double lon;
     };
 public:
-    explicit GpsSource(QObject* parent);
+	explicit GpsSource(QObject* parent = nullptr);
     ~GpsSource();
 public:
     void startLocation();
