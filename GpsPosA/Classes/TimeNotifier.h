@@ -18,11 +18,16 @@ public:
 		, _func(func)
 	{
 	}
-
+public:
 	void setArg(int64_t timeout, std::function<void()> func)
 	{
 		_timeout = timeout;
 		_func = func;
+	}
+
+	void reset(int64_t currTick)
+	{
+		_lastTick = currTick;
 	}
 
 	void doTimeout(int64_t currTick)

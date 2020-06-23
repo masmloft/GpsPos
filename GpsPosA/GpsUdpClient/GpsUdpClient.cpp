@@ -2,6 +2,7 @@
 
 #include <QDateTime>
 #include <QTimerEvent>
+#include <QStringList>
 #include <QDebug>
 
 static int64_t getTick()
@@ -10,31 +11,76 @@ static int64_t getTick()
 }
 
 GpsUdpClient::GpsUdpClient(QObject* parent)
-    : QObject(parent)
+	: QObject(parent)
 {
-	_io = new QUdpSocket(this);
-	connect(_io, SIGNAL(readyRead()), this, SLOT(ioReadyRead()));
-
 	{
-		auto lm = [io = _io, ra = _remoteAddr, rp = _remotePort]()
+		auto lm = [this]()
 		{
-			QByteArray txBuf("BRIDGE:REG\n");
-			io->writeDatagram(txBuf.data(), txBuf.size(), ra, rp);
+			QByteArray txBuf("$BRIDGE,REG,");
+			txBuf += _cid;
+			txBuf += '\n';
+			_io->writeDatagram(txBuf.data(), txBuf.size(), _remoteAddr, _remotePort);
 		};
 		_remRegNotifier.setArg(5000, lm);
 	}
 
-	startTimer(1000);
+	{
+		auto lm = [this]()
+		{
+			if(recvCallback)
+			{
+				_gpsPos.hasFix = false;
+				recvCallback(_gpsPos);
+			}
+		};
+		_rxGpsTimeoutNotifier.setArg(5000, lm);
+	}
 }
 
 GpsUdpClient::~GpsUdpClient()
 {
 }
 
+void GpsUdpClient::open(const QString& addrPort)
+{
+	close();
+
+	{
+		QStringList args = addrPort.split(':');
+		if(args.size() == 2)
+		{
+			_remoteAddr = args.at(0);
+			_remotePort = args.at(1).toInt();
+		}
+	}
+
+	_io = new QUdpSocket(this);
+	connect(_io, SIGNAL(readyRead()), this, SLOT(ioReadyRead()));
+	_io->bind();
+
+	_timerId = startTimer(1000);
+}
+
+void GpsUdpClient::close()
+{
+	if(_timerId)
+	{
+		killTimer(_timerId);
+		_timerId = 0;
+	}
+
+	if(_io != nullptr)
+	{
+		delete _io;
+		_io = nullptr;
+	}
+}
+
 void GpsUdpClient::timerEvent(QTimerEvent*)
 {
 	int64_t currTick = getTick();
 	_remRegNotifier.doTimeout(currTick);
+	_rxGpsTimeoutNotifier.doTimeout(currTick);
 }
 
 void GpsUdpClient::sendGps(const QVariantMap& data)
@@ -81,30 +127,53 @@ void GpsUdpClient::ioReadyRead()
 	if(ioRet == 0)
 		return;
 	rxBuf.resize(ioRet);
-	if(rxBuf.back() != '\n')
+	if(rxBuf.at(rxBuf.size() - 1) != '\n')
 		return;
 	rxBuf.remove(rxBuf.size() - 1, 1);
 
-	QVariantMap map;
+	QList<QByteArray> rxFields = rxBuf.split(',');
 
-	QList<QByteArray> fields = rxBuf.split(',');
-
-	if(fields.size() > 1)
+	if(rxFields.size() > 1)
 	{
-		if((fields.at(0) == "$CVTLLA") && (fields.size() == 1 + 6))
+		if((rxFields.at(0) == "$CVTLLA") && (rxFields.size() == 1 + 6))
 		{
-			map["cid"] = fields.at(1);
-			map["valid"] = (fields.at(2) == "Y") ? true : false;
-			map["time"] = fields.at(3).toLongLong();
-			map["lat"] = fields.at(4).toDouble();
-			map["lon"] = fields.at(5).toDouble();
-			map["alt"] = fields.at(6).toDouble();
+			_rxGpsTimeoutNotifier.reset(getTick());
 
-			if(map["cid"] != _cid)
+			QByteArray cid = rxFields.at(1);
+			bool valid = (rxFields.at(2) == "Y") ? true : false;
+			int64_t datetime = rxFields.at(3).toLongLong();
+			double lat = rxFields.at(4).toDouble();
+			double lon = rxFields.at(5).toDouble();
+			double alt = rxFields.at(6).toDouble();
+
+			if(cid != _cid)
 			{
-				if(map.contains("cid") && map.contains("lat") && map.contains("lon"))
+				if(cid.isEmpty() == false)
 				{
-					emit(recvGps(map));
+					{
+						QVariantMap map;
+						map["cid"] = cid;
+						map["valid"] = valid;
+						map["time"] = datetime;
+						map["lat"] = lat;
+						map["lon"] = lon;
+						map["alt"] = alt;
+						emit(recvGps(map));
+					}
+
+					if(recvCallback)
+					{
+						memcpy(_gpsPos.cid, cid.data(), std::min((int)sizeof(_gpsPos.cid), cid.size() + 1));
+						//val.status;
+						_gpsPos.hasFix = valid;
+						_gpsPos.datetime = datetime;
+						_gpsPos.lat = lat;
+						_gpsPos.lon = lon;
+						_gpsPos.alt= alt;
+
+						recvCallback(_gpsPos);
+					}
+
 				}
 			}
 
