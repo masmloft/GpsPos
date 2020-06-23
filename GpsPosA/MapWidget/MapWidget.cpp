@@ -205,6 +205,7 @@ void MapWidget::paintEvent(QPaintEvent* event)
 
 void MapWidget::updateStatusWidget()
 {
+	return;
 	QString str;
 
 	str += tr(" z:%1 ").arg(_centerMapPoint.zoom());
