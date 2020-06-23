@@ -56,7 +56,7 @@ bool UdpBridge::open(uint16_t port)
 void UdpBridge::send(const QByteArray& datagram, const QHostAddress &host, quint16 port)
 {
 	_io->writeDatagram(datagram, host, port);
-	qDebug() << QDateTime::currentDateTime().toString(Qt::ISODate) << ": [TX]" << " ADDR:" << host.toString() << ":" << port << " DATA:" << datagram;//.mid(0, datagram.size() - 1);
+	qDebug() << QDateTime::currentDateTime().toString(Qt::ISODate) << ": [TX]" << " ADDR:" << host.toString() << ":" << port << " DATA:" << datagram.mid(0, datagram.size() - 1);
 }
 
 void UdpBridge::ioReadyRead()
@@ -77,11 +77,12 @@ void UdpBridge::ioReadyRead()
 	rxBuf.resize(ioRet);
 	if(rxBuf.at(rxBuf.size() - 1) != '\n')
 		return;
-	rxBuf.remove(rxBuf.size() - 1, 1);
+	//rxBuf.remove(rxBuf.size() - 1, 1);
+	QByteArray rxMsg = rxBuf.mid(0, rxBuf.size() - 1);
 
-	qDebug() << QDateTime::currentDateTime().toString(Qt::ISODate) << ": [RX]" << " ADDR:" << senderAddr.toString() << ":" << senderPort << " DATA:" << rxBuf;
+	qDebug() << QDateTime::currentDateTime().toString(Qt::ISODate) << ": [RX]" << " ADDR:" << senderAddr.toString() << ":" << senderPort << " DATA:" << rxMsg;
 
-	QList<QByteArray> rxFields = rxBuf.split(',');
+	QList<QByteArray> rxFields = rxMsg.split(',');
 
 	if((rxFields.size() >= 2) && (rxFields.at(0) == "$BRIDGE"))
 	{
