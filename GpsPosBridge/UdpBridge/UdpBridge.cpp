@@ -112,6 +112,8 @@ void UdpBridge::ioReadyRead()
 			QByteArray txBuf = QByteArray("$BRIDGE:REGED,") + cid + '\n';
 			send(txBuf, sender, senderPort);
 		}
+
+		return;
 	}
 
 	for(const NetPoint& item : _obClients)
