@@ -24,31 +24,42 @@ MapWidget::MapWidget(QWidget* parent)
 	gridLayout->setContentsMargins(3, 3, 3, 3);
 	this->setLayout(gridLayout);
 
-	QToolButton* zoomOutToolButton = new QToolButton(this);
-    //zoomOutToolButton->setArrowType(Qt::UpArrow);
-    zoomOutToolButton->setText("-");
-	zoomOutToolButton->setAutoRaise(true);
-	connect(zoomOutToolButton, SIGNAL(clicked()), this, SLOT(on_zoomOutPushButton_clicked()));
-	gridLayout->addWidget(zoomOutToolButton, 0, 0);
-	zoomOutToolButton->setMinimumSize(64, 64);
+	gridLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding), 0, 0);
 
-	_zoomWidget = new QLabel(this);
-	_zoomWidget->setAlignment(Qt::AlignHCenter);
-	gridLayout->addWidget(_zoomWidget, 1, 0);
 
-	QToolButton* zoomInToolButton = new QToolButton(this);
-    //zoomInToolButton->setArrowType(Qt::DownArrow);
-    zoomInToolButton->setText("+");
-	zoomInToolButton->setAutoRaise(true);
-	connect(zoomInToolButton, SIGNAL(clicked()), this, SLOT(on_zoomInPushButton_clicked()));
-	gridLayout->addWidget(zoomInToolButton, 2, 0);
-	zoomInToolButton->setMinimumSize(64, 64);
+	{
+		QToolButton* zoomOutToolButton = new QToolButton(this);
+		//zoomOutToolButton->setArrowType(Qt::UpArrow);
+		zoomOutToolButton->setText("-");
+		zoomOutToolButton->setAutoRaise(true);
+		connect(zoomOutToolButton, SIGNAL(clicked()), this, SLOT(on_zoomOutPushButton_clicked()));
+		zoomOutToolButton->setMinimumSize(128, 128);
+		gridLayout->addWidget(zoomOutToolButton, 1, 0, Qt::AlignRight);
+	}
 
-	gridLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding), 3,0);
-	gridLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum), 0,1);
+	{
+		_zoomWidget = new QLabel(this);
+		_zoomWidget->setAlignment(Qt::AlignHCenter);
+		gridLayout->addWidget(_zoomWidget, 2, 0, Qt::AlignRight);
+	}
 
-	_statusWidget = new QLabel(this);
-	gridLayout->addWidget(_statusWidget, 4, 0, 2, 1);
+	{
+		QToolButton* zoomInToolButton = new QToolButton(this);
+		//zoomInToolButton->setArrowType(Qt::DownArrow);
+		zoomInToolButton->setText("+");
+		zoomInToolButton->setAutoRaise(true);
+		connect(zoomInToolButton, SIGNAL(clicked()), this, SLOT(on_zoomInPushButton_clicked()));
+		zoomInToolButton->setMinimumSize(128, 128);
+		gridLayout->addWidget(zoomInToolButton, 3, 0, Qt::AlignRight);
+	}
+
+//	gridLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding), 3,0);
+//	gridLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum), 0,1);
+
+	{
+		_statusWidget = new QLabel(this);
+		gridLayout->addWidget(_statusWidget, 4, 0, Qt::AlignLeft);
+	}
 }
 
 MapWidget::~MapWidget()

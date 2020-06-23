@@ -57,9 +57,10 @@ int main(int argc, char *argv[])
 
     w.showMaximized();
 
-	//gpsSource.startLocation();
+	gpsSource.startLocation();
 
 	GpsSatellite gpsSatellite;
+	gpsSatellite.changedCallback = [&w](const std::vector<GpsSatInfo>& info) { w.setGpsSatInfo(info); };
 	gpsSatellite.open();
 
 

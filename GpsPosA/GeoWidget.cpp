@@ -21,20 +21,40 @@ void GeoWidget::paintEvent(QPaintEvent *event)
 {
 	MapWidget::paintEvent(event);
 
+	QPainter painter(this);
+
+	{
+		QSize c = this->size() / 2;
+		painter.drawLine(c.width() - 10, c.height(), c.width() + 10, c.height());
+		painter.drawLine(c.width(), c.height() - 10, c.width(), c.height() + 10);
+	}
+
+	{
+//			QString str = tr("o:%1 e:%2 t:%3").arg(gpsPoint.okCount).arg(gpsPoint.errCount).arg(gpsPoint.timeoutCount);
+//            painter.drawText(2, 20, str);
+	}
+
+	{
+		QString str = "Info: " + QString::number(_gpsSatInfos.size()) + '\n';
+
+		for(const GpsSatInfo& item : _gpsSatInfos)
+		{
+			str += QString::number(item.id);
+			str += " : ";
+			str += QString::number(item.signalStrength);
+			str += '\n';
+		}
+		painter.drawText(0, 20, width(), height() - 20,  Qt::AlignLeft | Qt::TextWordWrap, str);
+	}
+
+
 	for(const auto& gpsPoint : _gpsPoints)
     {
-        QPainter painter(this);
         painter.setPen(Qt::black);
         painter.setBrush(Qt::green);
         static const int POINT_RADIUS = 12;
 		QPoint pos = latLonPointToPos(gpsPoint.gpsPos);
         painter.drawEllipse(pos, POINT_RADIUS, POINT_RADIUS);
-
-        {
-            QSize c = this->size() / 2;
-            painter.drawLine(c.width() - 5, c.height(), c.width() + 5, c.height());
-            painter.drawLine(c.width(), c.height() - 5, c.width(), c.height() + 5);
-        }
 
         //painter.drawText(3, 3, tr("%1 %2").arg(_selfPos.lat()).arg(_selfPos.lon()));
         {
@@ -46,14 +66,7 @@ void GeoWidget::paintEvent(QPaintEvent *event)
 			str = str.arg(gpsPoint.alt, 0, 'f', 1);
 			painter.drawText(pos.x() + 2 + POINT_RADIUS, pos.y(), str);
         }
-        {
-//			QString str = tr("o:%1 e:%2 t:%3").arg(gpsPoint.okCount).arg(gpsPoint.errCount).arg(gpsPoint.timeoutCount);
-//            painter.drawText(2, 20, str);
-        }
     }
-
-//	_selfPos.rlon() += 0.001;
-
 }
 
 void GeoWidget::setGpsPoint(const QVariantMap& data)
@@ -85,5 +98,13 @@ void GeoWidget::setGpsPoint(const QVariantMap& data)
 		_gpsPoints.push_back(gpsPoint);
 	}
 
+	update();
+//	repaint();
+}
+
+void GeoWidget::setGpsSatInfo(const std::vector<GpsSatInfo>& info)
+{
+	_gpsSatInfos = info;
+//	repaint();
 	update();
 }

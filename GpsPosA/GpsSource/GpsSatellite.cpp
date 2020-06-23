@@ -15,6 +15,7 @@ GpsSatellite::GpsSatellite(QObject *parent)
 
 bool GpsSatellite::open()
 {
+	qDebug() << "------------" << __FUNCTION__;
 	close();
 
 	clear();
@@ -24,25 +25,29 @@ bool GpsSatellite::open()
 	//QStringList sl = QGeoSatelliteInfoSource::availableSources();
 
 	_source = QGeoSatelliteInfoSource::createDefaultSource(this);
+
+	qDebug() << "------------" << __FUNCTION__ << _source;
+
 //	QVariantMap parameters;
 //	parameters["serial_port"] = QString("COM22");
 //	_source = QGeoSatelliteInfoSource::createDefaultSource(parameters, this);
 
-	if (_source == nullptr)
-	{
-		QVariantMap parameters;
-		parameters["serialnmea.serial_port"] = QString("COM22");
-		_source = QGeoSatelliteInfoSource::createSource("serialnmea", parameters, this);
-	}
+//	if (_source == nullptr)
+//	{
+//		QVariantMap parameters;
+//		parameters["serialnmea.serial_port"] = QString("COM22");
+//		_source = QGeoSatelliteInfoSource::createSource("serialnmea", parameters, this);
+//	}
 	if (_source == nullptr)
 		return false;
 
 
 	{
 		_source->setUpdateInterval(1000);
+		connect(_source, SIGNAL(error(QGeoSatelliteInfoSource::Error)), this, SLOT(error(QGeoSatelliteInfoSource::Error)));
 		connect(_source, SIGNAL(satellitesInViewUpdated(QList<QGeoSatelliteInfo>)), this, SLOT(satellitesInViewUpdated(QList<QGeoSatelliteInfo>)));
 		connect(_source, SIGNAL(satellitesInUseUpdated(QList<QGeoSatelliteInfo>)), this, SLOT(satellitesInUseUpdated(QList<QGeoSatelliteInfo>)));
-		connect(_source, SIGNAL(error(QGeoSatelliteInfoSource::Error)), this, SLOT(error(QGeoSatelliteInfoSource::Error)));
+		connect(_source, SIGNAL(requestTimeout()), this, SLOT(requestTimeout()));
 		_source->startUpdates();
 	}
 
@@ -68,11 +73,13 @@ void GpsSatellite::clear()
 
 void GpsSatellite::error(QGeoSatelliteInfoSource::Error error)
 {
-	emit errorFound((int)error);
+	qDebug() << "------------" << __FUNCTION__ << error;
+//	emit errorFound((int)error);
 }
 
 void GpsSatellite::satellitesInViewUpdated(const QList<QGeoSatelliteInfo> &infos)
 {
+	qDebug() << "------------" << __FUNCTION__;
 	if (_running == false)
 		return;
 
@@ -100,16 +107,43 @@ void GpsSatellite::satellitesInViewUpdated(const QList<QGeoSatelliteInfo> &infos
 
 	_knownSatelliteIds = satelliteIdsInUpdate;
 
-	if (oldEntryCount != _knownSatellites.count())
-		emit entryCountChanged();
+//	if (oldEntryCount != _knownSatellites.count())
+//		emit entryCountChanged();
+
+	emitChanged();
 }
 
 void GpsSatellite::satellitesInUseUpdated(const QList<QGeoSatelliteInfo> &infos)
 {
+	qDebug() << "------------" << __FUNCTION__;
 	if (_running == false)
 		return;
 
 	_satellitesInUse.clear();
 	foreach (const QGeoSatelliteInfo &info, infos)
 		_satellitesInUse.insert(info.satelliteIdentifier());
+}
+
+void GpsSatellite::requestTimeout()
+{
+	qDebug() << "------------" << __FUNCTION__;
+}
+
+void GpsSatellite::emitChanged()
+{
+	if(changedCallback == nullptr)
+		return;
+	std::vector<GpsSatInfo> infos;
+
+	for(const QGeoSatelliteInfo& item : _knownSatellites)
+	{
+		GpsSatInfo info;
+		info.id = item.satelliteIdentifier();
+		info.signalStrength = item.signalStrength();
+		info.elev = item.attribute(QGeoSatelliteInfo::Elevation);
+		info.azim = item.attribute(QGeoSatelliteInfo::Azimuth);
+		infos.push_back(info);
+	}
+
+	changedCallback(infos);
 }

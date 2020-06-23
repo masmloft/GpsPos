@@ -2,6 +2,7 @@
 
 #include <list>
 
+#include "Classes/GpsSatInfo.h"
 #include "MapWidget/MapWidget.h"
 
 class GeoWidget : public MapWidget
@@ -9,14 +10,11 @@ class GeoWidget : public MapWidget
 public:
 	GeoWidget(QWidget* parent);
 	~GeoWidget();
-
-//	void setLatLon(double lat, double lon);
-//	void setLatLonDeg(double lat, double lon);
-//    void setStat(uint okCount, uint errCount, uint timeoutCount);
-
+public:
 	void setGpsPoint(const QVariantMap& data);
+	void setGpsSatInfo(const std::vector<GpsSatInfo>& info);
 protected:
-	virtual void paintEvent(QPaintEvent *event);
+	void paintEvent(QPaintEvent *event) override;
 private:
 	struct GpsPoint
 	{
@@ -33,6 +31,7 @@ private:
 	};
 private:
 	std::list<GpsPoint> _gpsPoints;
+	std::vector<GpsSatInfo> _gpsSatInfos;
 //	LatLonPoint _selfPos;
 //    uint _okCount = 0;
 //    uint _errCount = 0;

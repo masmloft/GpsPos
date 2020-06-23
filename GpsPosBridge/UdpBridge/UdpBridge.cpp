@@ -68,9 +68,9 @@ void UdpBridge::ioReadyRead()
 	QByteArray rxBuf;
 	rxBuf.resize(rxSize);
 
-	QHostAddress sender;
+	QHostAddress senderAddr;
 	quint16 senderPort;
-	qint64 ioRet = _io->readDatagram(rxBuf.data(), rxBuf.size(), &sender, &senderPort);
+	qint64 ioRet = _io->readDatagram(rxBuf.data(), rxBuf.size(), &senderAddr, &senderPort);
 
 	if(ioRet == 0)
 		return;
@@ -79,7 +79,7 @@ void UdpBridge::ioReadyRead()
 		return;
 	rxBuf.remove(rxBuf.size() - 1, 1);
 
-	qDebug() << QDateTime::currentDateTime().toString(Qt::ISODate) << ": [RX]" << " ADDR:" << sender.toString() << " DATA:" << rxBuf;
+	qDebug() << QDateTime::currentDateTime().toString(Qt::ISODate) << ": [RX]" << " ADDR:" << senderAddr.toString() << ":" << senderPort << " DATA:" << rxBuf;
 
 	QList<QByteArray> rxFields = rxBuf.split(',');
 
@@ -89,9 +89,9 @@ void UdpBridge::ioReadyRead()
 		{
 			const QByteArray cid = rxFields.at(2);
 
-			auto predicate = [sender, senderPort, cid](auto item)
+			auto predicate = [senderAddr, senderPort, cid](auto item)
 			{
-				return (item.blocked == false) && (item.addr == sender) && (item.port == senderPort)  && (item.cid == cid);
+				return (item.blocked == false) && (item.addr == senderAddr) && (item.port == senderPort)  && (item.cid == cid);
 			};
 
 			auto it = std::find_if(_obClients.begin(), _obClients.end(), predicate);
@@ -101,7 +101,7 @@ void UdpBridge::ioReadyRead()
 			}
 			else
 			{
-				NetPoint point{false, getTick(), sender, senderPort, cid};
+				NetPoint point{false, getTick(), senderAddr, senderPort, cid};
 				auto it = std::find_if(_obClients.begin(), _obClients.end(), [](auto item) { return (item.blocked == true); });
 				if(it != _obClients.end())
 					*it = point;
@@ -110,7 +110,7 @@ void UdpBridge::ioReadyRead()
 			}
 
 			QByteArray txBuf = QByteArray("$BRIDGE:REGED,") + cid + '\n';
-			send(txBuf, sender, senderPort);
+			send(txBuf, senderAddr, senderPort);
 		}
 
 		return;
