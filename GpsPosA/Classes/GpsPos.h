@@ -7,6 +7,7 @@
 struct GpsPos
 {
 	char cid[8 + 1];
+	uint16_t txid;
 	int status;
 	bool hasFix;
 	//uint64_t time;

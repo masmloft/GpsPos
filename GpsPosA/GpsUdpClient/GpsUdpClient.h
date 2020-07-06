@@ -32,6 +32,7 @@ private:
 	void timerEvent(QTimerEvent*) override;
 private:
 	QByteArray _cid{"0000"};
+	uint16_t  _txid = 0;
 //	QHostAddress _remoteAddr{"192.168.10.225"};
 	QHostAddress _remoteAddr{"176.36.121.108"};
 	uint16_t _remotePort = 1025;

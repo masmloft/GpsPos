@@ -18,6 +18,7 @@ GpsUdpClient::GpsUdpClient(QObject* parent)
 		{
 			QByteArray txBuf("$BRIDGE,REG,");
 			txBuf += _cid;
+			txBuf += "," + QByteArray::number(_txid++);
 			txBuf += '\n';
 			_io->writeDatagram(txBuf.data(), txBuf.size(), _remoteAddr, _remotePort);
 		};
@@ -98,6 +99,7 @@ void GpsUdpClient::sendGps(const QVariantMap& data)
 	txBuf = "$CVTLLA";
 
 	txBuf += "," + _cid;
+	txBuf += "," + QByteArray::number(_txid++);
 	txBuf += (valid ? ",Y" : ",N");
 	txBuf += "," + QByteArray::number(time);
 	txBuf += "," + QByteArray::number(lat, 'f', 8);
@@ -136,16 +138,17 @@ void GpsUdpClient::ioReadyRead()
 	if(rxFields.size() > 1)
 	{
 		//sendGps({});
-		if((rxFields.at(0) == "$CVTLLA") && (rxFields.size() == 1 + 6))
+		if((rxFields.at(0) == "$CVTLLA") && (rxFields.size() == 1 + 7))
 		{
 			_rxGpsTimeoutNotifier.reset(getTick());
 
 			QByteArray cid = rxFields.at(1);
-			bool valid = (rxFields.at(2) == "Y") ? true : false;
-			int64_t datetime = rxFields.at(3).toLongLong();
-			double lat = rxFields.at(4).toDouble();
-			double lon = rxFields.at(5).toDouble();
-			double alt = rxFields.at(6).toDouble();
+			uint16_t txid = rxFields.at(2).toUInt();
+			bool valid = (rxFields.at(3) == "Y") ? true : false;
+			int64_t datetime = rxFields.at(4).toLongLong();
+			double lat = rxFields.at(5).toDouble();
+			double lon = rxFields.at(6).toDouble();
+			double alt = rxFields.at(7).toDouble();
 
 			if(cid != _cid)
 			{
@@ -154,6 +157,7 @@ void GpsUdpClient::ioReadyRead()
 					{
 						QVariantMap map;
 						map["cid"] = cid;
+						map["txid"] = txid;
 						map["valid"] = valid;
 						map["time"] = datetime;
 						map["lat"] = lat;
@@ -165,6 +169,7 @@ void GpsUdpClient::ioReadyRead()
 					if(recvCallback)
 					{
 						memcpy(_gpsPos.cid, cid.data(), std::min((int)sizeof(_gpsPos.cid), cid.size() + 1));
+						_gpsPos.txid = txid;
 						//val.status;
 						_gpsPos.hasFix = valid;
 						_gpsPos.datetime = datetime;
