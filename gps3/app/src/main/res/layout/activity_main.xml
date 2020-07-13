@@ -42,27 +42,6 @@
             android:textSize="18sp" />
 
         <TextView
-            android:id="@+id/tvEnabledNet"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="tvEnabledNet"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/tvStatusNet"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="tvStatusNet"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/tvLocationNet"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="tvLocationNet"
-            android:textSize="18sp" />
-
-        <TextView
             android:id="@+id/textViewSatCount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

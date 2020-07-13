@@ -24,9 +24,9 @@ public class MainActivity extends Activity {
     TextView tvEnabledGPS;
     TextView tvStatusGPS;
     TextView tvLocationGPS;
-    TextView tvEnabledNet;
-    TextView tvStatusNet;
-    TextView tvLocationNet;
+//    TextView tvEnabledNet;
+//    TextView tvStatusNet;
+//    TextView tvLocationNet;
     TextView textViewSatCount;
 
     private LocationManager locationManager;
@@ -43,9 +43,9 @@ public class MainActivity extends Activity {
         tvEnabledGPS = (TextView) findViewById(R.id.tvEnabledGPS);
         tvStatusGPS = (TextView) findViewById(R.id.tvStatusGPS);
         tvLocationGPS = (TextView) findViewById(R.id.tvLocationGPS);
-        tvEnabledNet = (TextView) findViewById(R.id.tvEnabledNet);
-        tvStatusNet = (TextView) findViewById(R.id.tvStatusNet);
-        tvLocationNet = (TextView) findViewById(R.id.tvLocationNet);
+//        tvEnabledNet = (TextView) findViewById(R.id.tvEnabledNet);
+//        tvStatusNet = (TextView) findViewById(R.id.tvStatusNet);
+//        tvLocationNet = (TextView) findViewById(R.id.tvLocationNet);
         textViewSatCount = (TextView) findViewById(R.id.textViewSatCount);
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -99,7 +99,7 @@ public class MainActivity extends Activity {
 
         locationManager.addGpsStatusListener(gpsStatusListener);
 
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 10, 10, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 1, 0, locationListener);
         //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000 * 10, 10, locationListener);
 
         checkEnabled();
@@ -133,8 +133,6 @@ public class MainActivity extends Activity {
         public void onStatusChanged(String provider, int status, Bundle extras) {
             if (provider.equals(LocationManager.GPS_PROVIDER)) {
                 tvStatusGPS.setText("Status: " + String.valueOf(status));
-            } else if (provider.equals(LocationManager.NETWORK_PROVIDER)) {
-                tvStatusNet.setText("Status: " + String.valueOf(status));
             }
         }
     };
@@ -144,9 +142,6 @@ public class MainActivity extends Activity {
             return;
         if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
             tvLocationGPS.setText(formatLocation(location));
-        } else if (location.getProvider().equals(
-                LocationManager.NETWORK_PROVIDER)) {
-            tvLocationNet.setText(formatLocation(location));
         }
     }
 
@@ -160,12 +155,7 @@ public class MainActivity extends Activity {
     }
 
     private void checkEnabled() {
-        tvEnabledGPS.setText("Enabled: "
-                + locationManager
-                .isProviderEnabled(LocationManager.GPS_PROVIDER));
-        tvEnabledNet.setText("Enabled: "
-                + locationManager
-                .isProviderEnabled(LocationManager.NETWORK_PROVIDER));
+        tvEnabledGPS.setText("Enabled: " + locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
     }
 
     public void onClickLocationSettings(View view) {
