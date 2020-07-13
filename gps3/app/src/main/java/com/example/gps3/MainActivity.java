@@ -121,6 +121,7 @@ public class MainActivity extends Activity {
             _gpsServiceConnection = new GpsServiceConnection();
             bindService(new Intent(this, GpsService.class), _gpsServiceConnection, Context.BIND_AUTO_CREATE);
         }
+        tvEnabledGPS.setText("Enabled: " + (_gpsServiceConnection != null));
     };
 
     public void onClickButtonStop(View view) {
@@ -130,13 +131,31 @@ public class MainActivity extends Activity {
             stopService(new Intent(this, GpsService.class));
             _gpsServiceConnection = null;
         }
+        tvEnabledGPS.setText("Enabled: " + (_gpsServiceConnection != null));
     };
 
     private void showLocation(Gps.Data data) {
-        String s = String.format(
-                "Coordinates: lat = %1$.7f, lon = %2$.7f, alt = %3$.1f, time = %4$tF %4$tT",
-                data.lat, data.lon, data.alt, new Date(data.date));
-        tvLocationGPS.setText(s);
+
+        tvEnabledGPS.setText("Enabled: " + data.enabledGPS);
+
+        {
+            String s = String.format(
+                    "Coordinates: lat = %1$.7f, lon = %2$.7f, alt = %3$.1f, time = %4$tF %4$tT",
+                    data.lat, data.lon, data.alt, new Date(data.date));
+            tvLocationGPS.setText(s);
+        }
+        {
+            String s = "";
+            s += String.format("_satellites: %d", data.sats.size()) + "\n";
+
+            int i = 0;
+            for (GpsSatellite sat : data.sats) {
+                //if(sat.usedInFix())
+                s += String.format("| %d : %f |", i, sat.getSnr()) + "\n";
+            }
+
+            textViewSatCount.setText(s);
+        }
     }
 
     private class IncomingHandler extends Handler {

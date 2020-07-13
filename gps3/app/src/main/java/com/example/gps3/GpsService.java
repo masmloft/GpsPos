@@ -90,7 +90,6 @@ public class GpsService extends Service {
 
             switch (msg.what) {
                 case GET_DATA:
-                    Log.d(MainActivity.TAG, "(service)...set count");
                     sendDataToActivity();
                     break;
             }

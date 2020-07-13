@@ -13,17 +13,21 @@ import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Gps {
     final String LOG_TAG = "Gps";
 
     class Data {
-        int satellites = -1;
+        boolean enabledGPS = false;
+        //int satellites = -1;
         double lat = 0;
         double lon = 0;
         double alt = 0;
         long date = 0;
+
+        ArrayList<GpsSatellite> sats = new ArrayList<>();
     }
 
     interface Callback{
@@ -71,18 +75,16 @@ public class Gps {
                 Iterable<GpsSatellite> sats = status.getSatellites();
                 // Check number of satellites in list to determine fix state
 
-                String s = "";
-
-                _data.satellites = 0;
-                int i = 0;
+                _data.sats.clear();
                 for (GpsSatellite sat : sats) {
-                    //if(sat.usedInFix())
-                    s += String.format("| %d : %f |", i, sat.getSnr()) + "\n";
-                    _data.satellites++;
+                    _data.sats.add(sat);
+                    //_data.satellites++;
                 }
 
-                s = String.format("_satellites: %d", _data.satellites) + "\n" + s;
-                //textViewSatCount.setText(s);
+                Log.d(LOG_TAG, String.format("sats: %d", _data.sats.size()));
+
+                if(callback != null)
+                    callback.emit();
             }
         }
     };
@@ -115,7 +117,7 @@ public class Gps {
 
         _locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 1, 0, _locationListener);
 
-        //tvEnabledGPS.setText("Enabled: " + locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+        _data.enabledGPS = _locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     public void stop()
