@@ -48,10 +48,18 @@
             android:text="textViewSatCount" />
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/buttonStart"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Button" />
+            android:onClick="onClickButtonStart"
+            android:text="buttonStart" />
+
+        <Button
+            android:id="@+id/buttonStop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onClickButtonStop"
+            android:text="buttonStop" />
 
     </LinearLayout>
 
