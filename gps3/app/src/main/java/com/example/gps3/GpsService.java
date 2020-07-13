@@ -8,12 +8,15 @@ import android.util.Log;
 public class GpsService extends Service {
     final String LOG_TAG = "myLogs";
 
+    private Gps _gps = new Gps(this);
+
     public GpsService() {
     }
 
     public void onCreate() {
         super.onCreate();
         Log.d(LOG_TAG, "onCreate");
+        _gps.start();
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -25,6 +28,7 @@ public class GpsService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.d(LOG_TAG, "onDestroy");
+        _gps.stop();
     }
 
     @Override

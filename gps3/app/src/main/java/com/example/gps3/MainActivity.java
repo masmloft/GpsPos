@@ -51,13 +51,13 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        _gps.start();
+//        _gps.start();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        _gps.stop();
+//        _gps.stop();
     }
 
     public void onClickLocationSettings(View view) {

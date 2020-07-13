@@ -9,12 +9,15 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
 import java.util.Date;
 
 public class Gps {
+    final String LOG_TAG = "Gps";
+
     class Data {
         int satellites = -1;
         double lat = 0;
@@ -132,11 +135,13 @@ public class Gps {
         if (location == null)
             return;
         if (location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
+            Log.d(LOG_TAG, "setLocation");
             _data.lat = location.getLatitude();
             _data.lon = location.getLongitude();
             _data.alt = location.getAltitude();
             _data.date = location.getTime();
-            callback.emit();
+            if(callback != null)
+                callback.emit();
         }
     }
 }
