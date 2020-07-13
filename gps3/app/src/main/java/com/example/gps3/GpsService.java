@@ -38,10 +38,10 @@ public class GpsService extends Service {
     }
 
     void someTask() {
-        Thread t = new Thread(new Runnable() {
-            public void run() {
-            }
-        });
-        t.start();
+//        Thread t = new Thread(new Runnable() {
+//            public void run() {
+//            }
+//        });
+//        t.start();
     }
 }
