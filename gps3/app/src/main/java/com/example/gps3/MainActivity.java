@@ -76,8 +76,8 @@ public class MainActivity extends Activity {
     private void showLocation() {
         Gps.Data data = _gps.data();
         String s = String.format(
-                "Coordinates: lat = %1$.7f, lon = %2$.7f, time = %3$tF %3$tT",
-                data.lat, data.lon, new Date(data.date));
+                "Coordinates: lat = %1$.7f, lon = %2$.7f, alt = %3$.1f, time = %4$tF %4$tT",
+                data.lat, data.lon, data.alt, new Date(data.date));
         tvLocationGPS.setText(s);
     }
 
