@@ -134,8 +134,8 @@ public class MainActivity extends Activity {
         tvEnabledGPS.setText("Enabled: " + (_gpsServiceConnection != null));
     };
 
-    private void showLocation(Gps.Data data) {
-
+    private void showLocation(Gps.Data data)
+    {
         tvEnabledGPS.setText("Enabled: " + data.enabledGPS);
 
         {
